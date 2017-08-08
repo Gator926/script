@@ -1,5 +1,6 @@
 import datetime
 import os
+import shutil
 
 # 获取文件列表
 files = os.listdir()
@@ -21,7 +22,7 @@ if 'garbage.txt' not in os.listdir():
 
 # 如果有文件则执行相应操作
 else:
-    file = open('garbage.txt', 'r')
+    file = open('garbage.txt', 'r', encoding='utf-8')
     data = eval(file.readlines()[0])                                 # 获取文本内容
     file.close()                                                     # 关闭文本文件
     txtDate = datetime.datetime.strptime(data['date'], "%Y-%m-%d")   # 文本时间
@@ -33,14 +34,16 @@ else:
     # 根据操作files字典
     for eachRestDay in data["files"]:
         eachRestDay["restTime"] = eval(eachRestDay["restTime"]) - dateDiff
-        # newJsonString = '{"date": "'+str(eachRestDay["restTime"])+'", "files": '+str(eachRestDay["file"])+'}'
         newJsonString = {"restTime": str(eachRestDay["restTime"]), "file": eachRestDay["file"]}
 
         # 若文件到期则删除文件
         if eachRestDay["restTime"] < 0:
             for eachDeleteFile in eachRestDay["file"]:
                 files.remove(eachDeleteFile)
-                os.remove(eachDeleteFile)
+                if os.path.isdir(eachDeleteFile):
+                    shutil.rmtree(eachDeleteFile)
+                else:
+                    os.remove(eachDeleteFile)
         else:
             for eachSpecivalFile in eachRestDay["file"]:
                 files.remove(eachSpecivalFile)
