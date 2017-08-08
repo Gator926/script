@@ -30,32 +30,33 @@ else:
     todayDate = datetime.datetime(today.year, today.month, today.day, 0, 0, 0)
     dateDiff = (todayDate - txtDate).days                            # 天数差
 
-    filesJsonList = []                                               # 构造新的json列表
-    # 根据操作files字典
-    for eachRestDay in data["files"]:
-        eachRestDay["restTime"] = eval(eachRestDay["restTime"]) - dateDiff
-        newJsonString = {"restTime": str(eachRestDay["restTime"]), "file": eachRestDay["file"]}
+    if dateDiff != 0:
+        filesJsonList = []                                               # 构造新的json列表
+        # 根据操作files字典
+        for eachRestDay in data["files"]:
+            eachRestDay["restTime"] = eval(eachRestDay["restTime"]) - dateDiff
+            newJsonString = {"restTime": str(eachRestDay["restTime"]), "file": eachRestDay["file"]}
 
-        # 若文件到期则删除文件
-        if eachRestDay["restTime"] < 0:
-            for eachDeleteFile in eachRestDay["file"]:
-                files.remove(eachDeleteFile)
-                if os.path.isdir(eachDeleteFile):
-                    shutil.rmtree(eachDeleteFile)
-                else:
-                    os.remove(eachDeleteFile)
-        else:
-            for eachSpecivalFile in eachRestDay["file"]:
-                files.remove(eachSpecivalFile)
-            filesJsonList.append(newJsonString)
+            # 若文件到期则删除文件
+            if eachRestDay["restTime"] < 0:
+                for eachDeleteFile in eachRestDay["file"]:
+                    files.remove(eachDeleteFile)
+                    if os.path.isdir(eachDeleteFile):
+                        shutil.rmtree(eachDeleteFile)
+                    else:
+                        os.remove(eachDeleteFile)
+            else:
+                for eachSpecivalFile in eachRestDay["file"]:
+                    files.remove(eachSpecivalFile)
+                filesJsonList.append(newJsonString)
 
-    # 当日新删除的文件
-    if len(files) != 0:
-        newFileJsonDict = {"restTime": "30", "file": files}
-        filesJsonList.append(newFileJsonDict)                        # 将当日新删除的文件加入json列表中
+        # 当日新删除的文件
+        if len(files) != 0:
+            newFileJsonDict = {"restTime": "30", "file": files}
+            filesJsonList.append(newFileJsonDict)                        # 将当日新删除的文件加入json列表中
 
-    # 待存储的内容
-    newJsonString = '{"date":"'+str(datetime.date.today())+'", "files":'+str(filesJsonList)+'}'
-    file = open('garbage.txt', 'w', encoding='utf-8')
-    file.write(newJsonString)
-    file.close()
+        # 待存储的内容
+        newJsonString = '{"date":"'+str(datetime.date.today())+'", "files":'+str(filesJsonList)+'}'
+        file = open('garbage.txt', 'w', encoding='utf-8')
+        file.write(newJsonString)
+        file.close()
